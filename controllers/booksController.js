@@ -23,7 +23,7 @@ exports.createBook = async (req, res) => {
   } catch (err) { handleError(err, res); }
 };
 
-exports.getBooks = async (req, res) => {
+exports.gettasks = async (req, res) => {
   try {
     const filter = {};
     if (req.query.year !== undefined) {

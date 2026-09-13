@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { createBook, getBooks, getBook, updateBook, deleteBook } = require('../controllers/booksController');
+const { createBook, gettasks, getBook, updateBook, deleteBook } = require('../controllers/tasksController');
 const router = express.Router();
 
 router.param('id', (req, res, next, id) => {
@@ -9,9 +9,9 @@ router.param('id', (req, res, next, id) => {
 });
 
 router.post('/', createBook);
-router.get('/', getBooks);
+router.get('/', gettasks);
 // Search must come before /:id.
-router.get('/search', getBooks);
+router.get('/search', gettasks);
 router.get('/:id', getBook);
 router.put('/:id', updateBook);
 router.delete('/:id', deleteBook);

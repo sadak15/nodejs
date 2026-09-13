@@ -11,11 +11,11 @@ const samples = [
 
 async function seed() {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/booksdb', {
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/tasksdb', {
       serverSelectionTimeoutMS: 10000
     });
     for (const sample of samples) {
-      // Running the seed again preserves existing books and their edits.
+      // Running the seed again preserves existing tasks and their edits.
       const book = await Book.findOneAndUpdate(
         { title: sample.title, author: sample.author },
         { $setOnInsert: sample },
@@ -23,7 +23,7 @@ async function seed() {
       );
       console.log(`${book._id}: ${book.title}`);
     }
-    console.log('Sample books are ready.');
+    console.log('Sample tasks are ready.');
   } catch (err) {
     console.error(`Seeding failed (${err.name}). Check MongoDB availability and MONGO_URI.`);
     process.exitCode = 1;
