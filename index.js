@@ -36,7 +36,7 @@ async function start() {
     await require('./models/User').init();
     app.listen(PORT, () => console.log(`Server is running at http://localhost:${PORT}`));
   } catch (err) {
-    console.error('Startup failed. Check JWT_SECRET, MONGO_URI, and that MongoDB is running.');
+    console.error('Startup failed:', err.message);
     await mongoose.disconnect();
     process.exitCode = 1;
   }
