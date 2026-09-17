@@ -1,7 +1,8 @@
 const swaggerJsdoc = require('swagger-jsdoc');
 
-const servers = [{ url: `http://localhost:${process.env.PORT || 4000}`, description: 'Local' }];
-if (process.env.RENDER_URL) servers.push({ url: process.env.RENDER_URL, description: 'Production' });
+const servers = [{
+  url: process.env.NODE_ENV == 'development' ? `http://localhost:${process.env.PORT || 4000}` : process.env.RENDER_URL
+}];
 
 const spec = swaggerJsdoc({
   definition: {
