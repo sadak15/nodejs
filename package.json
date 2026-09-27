@@ -4,14 +4,17 @@
   "description": "Personal Finance Tracker API: track income, expenses, and categories behind JWT auth",
   "license": "ISC",
   "author": "Ahmed_Ali",
-  "type": "commonjs",
-  "main": "index.js",
+  "type": "module",
+  "main": "backend/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js",
-    "seed": "node scripts/seed.js",
-    "promote-admin": "node scripts/promote-admin.js",
-    "test": "node --test"
+    "start": "node backend/index.js",
+    "server": "nodemon backend/index.js",
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm install && npm install --prefix frontend --production=false && npm run build --prefix frontend",
+    "seed": "node backend/scripts/seed.js",
+    "promote-admin": "node backend/scripts/promote-admin.js",
+    "test": "node --test backend"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -23,10 +26,15 @@
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.0",
+    "morgan": "^1.12.1",
     "multer": "^2.4.0",
     "streamifier": "^0.1.1",
     "swagger-jsdoc": "^6.3.0",
     "swagger-ui-express": "^5.0.1",
     "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "nodemon": "^3.1.14"
   }
 }
