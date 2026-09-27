@@ -7,7 +7,7 @@ import DashboardWelcome from '../../components/dashboard/DashboardWelcome'
 import TaskForm from '../../components/task/TaskForm'
 import TaskList from '../../components/task/TaskList'
 import api from '../../lib/api/apiClient'
-import { extractErrorMessages } from '../../util/errorUtils'
+import { extractErrorMessages, isNoResponseError } from '../../util/errorUtils'
 
 const DashboardPage = () => {
 
@@ -50,11 +50,17 @@ const DashboardPage = () => {
             return response.data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
             toast.success('Task status updated');
         },
         onError: (error) => {
-            toast.error(`Error updating task status: ${extractErrorMessages(error)}`);
+            if (isNoResponseError(error)) {
+                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
+            } else {
+                toast.error(`Error updating task status: ${extractErrorMessages(error)}`);
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
         }
     })
 

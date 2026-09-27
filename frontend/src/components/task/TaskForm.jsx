@@ -16,7 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader } from 'lucide-react'
 import { toast } from 'sonner'
 import api from '../../lib/api/apiClient'
-import { extractErrorMessages } from '../../util/errorUtils'
+import { extractErrorMessages, isNoResponseError } from '../../util/errorUtils'
 
 const TASK_STATUSES = [
     { value: 'pending', label: 'Pending' },
@@ -95,7 +95,6 @@ const TaskForm = ({ task, open = true, onOpenChange }) => {
         },
         onSuccess: () => {
             toast.success('Task created successfully', { description: 'Your task has been created.' });
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
             onOpenChange?.(false);
             setFormValues({
                 title: '',
@@ -105,8 +104,17 @@ const TaskForm = ({ task, open = true, onOpenChange }) => {
             });
         },
         onError: (error) => {
-            toast.error(`Error creating task: ${extractErrorMessages(error)}`, { description: 'Please try again.' });
-            setValidationError(extractErrorMessages(error));
+            if (isNoResponseError(error)) {
+                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
+            } else {
+                toast.error(`Error creating task: ${extractErrorMessages(error)}`, { description: 'Please try again.' });
+                setValidationError(extractErrorMessages(error));
+            }
+        },
+        // Always re-sync with the server, success or not: a dropped connection
+        // doesn't mean the write failed, so the list must reflect real state either way.
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
         }
     })
 
@@ -117,12 +125,18 @@ const TaskForm = ({ task, open = true, onOpenChange }) => {
         },
         onSuccess: () => {
             toast.success('Task updated successfully', { description: 'Your task has been updated.' });
-            queryClient.invalidateQueries({ queryKey: ['tasks'] });
             onOpenChange?.(false);
         },
         onError: (error) => {
-            toast.error(`Error updating task: ${extractErrorMessages(error)}`, { description: 'Please try again.' });
-            setValidationError(extractErrorMessages(error));
+            if (isNoResponseError(error)) {
+                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
+            } else {
+                toast.error(`Error updating task: ${extractErrorMessages(error)}`, { description: 'Please try again.' });
+                setValidationError(extractErrorMessages(error));
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks'] });
         }
     })
 
