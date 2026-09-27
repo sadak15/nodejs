@@ -16,7 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Loader } from 'lucide-react'
 import { toast } from 'sonner'
 import api from '../../lib/api/apiClient'
-import { extractErrorMessages, isNoResponseError } from '../../util/errorUtils'
+import { getActionableErrorMessage } from '../../util/errorUtils'
 
 const TASK_STATUSES = [
     { value: 'pending', label: 'Pending' },
@@ -104,11 +104,13 @@ const TaskForm = ({ task, open = true, onOpenChange }) => {
             });
         },
         onError: (error) => {
-            if (isNoResponseError(error)) {
-                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
+            const message = getActionableErrorMessage(error);
+            if (message) {
+                toast.error(`Error creating task: ${message}`, { description: 'Please try again.' });
+                setValidationError(message);
             } else {
-                toast.error(`Error creating task: ${extractErrorMessages(error)}`, { description: 'Please try again.' });
-                setValidationError(extractErrorMessages(error));
+                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
+                setValidationError(null);
             }
         },
         // Always re-sync with the server, success or not: a dropped connection
@@ -128,11 +130,13 @@ const TaskForm = ({ task, open = true, onOpenChange }) => {
             onOpenChange?.(false);
         },
         onError: (error) => {
-            if (isNoResponseError(error)) {
-                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
+            const message = getActionableErrorMessage(error);
+            if (message) {
+                toast.error(`Error updating task: ${message}`, { description: 'Please try again.' });
+                setValidationError(message);
             } else {
-                toast.error(`Error updating task: ${extractErrorMessages(error)}`, { description: 'Please try again.' });
-                setValidationError(extractErrorMessages(error));
+                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
+                setValidationError(null);
             }
         },
         onSettled: () => {
@@ -164,8 +168,7 @@ const TaskForm = ({ task, open = true, onOpenChange }) => {
 
 
     // Get display error from validation or mutation errors
-    const displayError = validationError ||
-        extractErrorMessages(createTaskMutation.error);
+    const displayError = validationError;
 
     const isLoading = createTaskMutation.isPending || updateTaskMutation.isPending;
 

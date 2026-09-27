@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api/apiClient';
-import { extractErrorMessages, isNoResponseError } from '../../util/errorUtils';
+import { getActionableErrorMessage } from '../../util/errorUtils';
 
 const STATUS_CONFIG = {
     'pending': {
@@ -88,10 +88,11 @@ const TaskCard = ({
             toast.success('Task deleted successfully');
         },
         onError: (error) => {
-            if (isNoResponseError(error)) {
-                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
+            const message = getActionableErrorMessage(error);
+            if (message) {
+                toast.error(`Error deleting task: ${message}`);
             } else {
-                toast.error(`Error deleting task: ${extractErrorMessages(error)}`);
+                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
             }
         },
         onSettled: () => {

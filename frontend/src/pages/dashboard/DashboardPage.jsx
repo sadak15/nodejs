@@ -7,7 +7,7 @@ import DashboardWelcome from '../../components/dashboard/DashboardWelcome'
 import TaskForm from '../../components/task/TaskForm'
 import TaskList from '../../components/task/TaskList'
 import api from '../../lib/api/apiClient'
-import { extractErrorMessages, isNoResponseError } from '../../util/errorUtils'
+import { getActionableErrorMessage } from '../../util/errorUtils'
 
 const DashboardPage = () => {
 
@@ -53,10 +53,11 @@ const DashboardPage = () => {
             toast.success('Task status updated');
         },
         onError: (error) => {
-            if (isNoResponseError(error)) {
-                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
+            const message = getActionableErrorMessage(error);
+            if (message) {
+                toast.error(`Error updating task status: ${message}`);
             } else {
-                toast.error(`Error updating task status: ${extractErrorMessages(error)}`);
+                toast.warning('Connection dropped before we heard back', { description: 'Checking your task list for the latest state…' });
             }
         },
         onSettled: () => {
